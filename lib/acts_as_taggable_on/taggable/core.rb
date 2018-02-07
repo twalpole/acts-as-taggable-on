@@ -34,6 +34,8 @@ module ActsAsTaggableOn::Taggable
                      class_name: 'ActsAsTaggableOn::Tag',
                      through: context_taggings,
                      source: :tag
+
+            attribute "#{tags_type.to_s.singularize}_list"
           end
 
           taggable_mixin.class_eval <<-RUBY, __FILE__, __LINE__ + 1
@@ -201,9 +203,11 @@ module ActsAsTaggableOn::Taggable
       else
         old = tag_list_on(context)
         if self.class.preserve_tag_order
-          @changed_attributes[attrib] = old if old.to_s != value.to_s
+          # @changed_attributes[attrib] = old if old.to_s != value.to_s
+          write_attribute(attrib, value) if old.to_s != value.to_s
         else
-          @changed_attributes[attrib] = old.to_s if old.sort != ActsAsTaggableOn.default_parser.new(value).parse.sort
+          # @changed_attributes[attrib] = old.to_s if old.sort != ActsAsTaggableOn.default_parser.new(value).parse.sort
+          write_attribute(attrib, value) if old.sort != ActsAsTaggableOn.default_parser.new(value).parse.sort
         end
       end
     end
